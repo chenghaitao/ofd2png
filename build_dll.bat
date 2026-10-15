@@ -28,12 +28,19 @@ set "ENGINE=%REPO%crates\invoice-engine"
 set "CARGOBIN=%USERPROFILE%\.cargo\bin"
 set "DIST=%REPO%dist\dll"
 
-REM Locate a VS2022 edition automatically: dev machines usually have
-REM Community, GitHub windows-latest runners ship Enterprise. Pre-set the VS
-REM environment variable to override the probe entirely.
+REM Locate a Visual Studio installation automatically. Order:
+REM   1. pre-set VS environment variable (manual override)
+REM   2. vswhere - the canonical locator shipped with the VS installer;
+REM      finds whatever edition/version is installed (VS2022 Community on
+REM      dev boxes, VS2026 Enterprise on GitHub windows-latest runners)
+REM   3. hardcoded VS2022 edition probe as a last-resort fallback
 if defined VS if exist "%VS%\VC\Auxiliary\Build\vcvars64.bat" goto :vs_found
 set "VS="
-for %%E in (Enterprise Professional Community BuildTools) do (
+set "VSWHERE=%PF86%\Microsoft Visual Studio\Installer\vswhere.exe"
+if exist "%VSWHERE%" (
+  for /f "usebackq tokens=*" %%P in (`"%VSWHERE%" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VS=%%P"
+)
+if not defined VS for %%E in (Enterprise Professional Community BuildTools) do (
   if not defined VS if exist "C:\Program Files\Microsoft Visual Studio\2022\%%E\VC\Auxiliary\Build\vcvars64.bat" set "VS=C:\Program Files\Microsoft Visual Studio\2022\%%E"
 )
 :vs_found
