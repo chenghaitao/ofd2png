@@ -25,9 +25,19 @@ setlocal
 set "REPO=%~dp0"
 set "CRATE=%REPO%crates\ofd-renderer"
 set "ENGINE=%REPO%crates\invoice-engine"
-set "VS=C:\Program Files\Microsoft Visual Studio\2022\Community"
 set "CARGOBIN=%USERPROFILE%\.cargo\bin"
 set "DIST=%REPO%dist\dll"
+
+REM Locate a VS2022 edition automatically: dev machines usually have
+REM Community, GitHub windows-latest runners ship Enterprise. Pre-set the VS
+REM environment variable to override the probe entirely.
+if defined VS if exist "%VS%\VC\Auxiliary\Build\vcvars64.bat" goto :vs_found
+set "VS="
+for %%E in (Enterprise Professional Community BuildTools) do (
+  if not defined VS if exist "C:\Program Files\Microsoft Visual Studio\2022\%%E\VC\Auxiliary\Build\vcvars64.bat" set "VS=C:\Program Files\Microsoft Visual Studio\2022\%%E"
+)
+:vs_found
+set "VS=%VS%"
 REM Captured outside any parenthesised block: a literal "%ProgramFiles(x86)%"
 REM inside one would have its ")" read as the end of the block.
 set "PF86=%ProgramFiles(x86)%"
