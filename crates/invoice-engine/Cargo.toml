@@ -1,6 +1,6 @@
 [package]
 name = "invoice-engine"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Invoice file parser: OFD (Open Fixed-layout Document) + XML 数电票, with SVG renderer"
 license = "MIT"

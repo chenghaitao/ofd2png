@@ -1,0 +1,26 @@
+# Line-ending policy.
+#
+# Goal: what GitHub Actions checks out must be byte-for-byte identical to the
+# blobs this repository stores, so the zips attached to a release match the
+# tagged source exactly.
+#
+# What went wrong without this file: the repository stores LF, but the Windows
+# runners default to core.autocrlf=true, which converts every LF to CRLF on
+# checkout. The v0.1.0 zip therefore shipped ofd_renderer.h at 15,650 bytes
+# (CRLF, 401 lines) while the repository stores 15,249 bytes (LF).
+* text=auto eol=lf
+
+# Windows batch scripts must stay CRLF: they rely on ^ line continuation and
+# parenthesised blocks, and a bare-LF script can break on some hosts.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary deliverables and fixtures
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.zip binary
+*.dll binary
+*.lib binary
+*.exe binary
+*.pdb binary
