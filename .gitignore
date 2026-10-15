@@ -1,0 +1,16 @@
+# Rust
+/target/
+
+# Build output (DLLs, staged deliverables, test samples)
+/dist/
+
+# C++ build residue
+*.obj
+*.exe
+!scripts/**/*.exe
+
+# Editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,25 @@
+[package]
+name = "invoice-engine"
+version = "0.1.0"
+edition = "2021"
+description = "Invoice file parser: OFD (Open Fixed-layout Document) + XML 数电票, with SVG renderer"
+license = "MIT"
+
+# "fields" pulls in structured invoice-field extraction (CustomData / CustomTag /
+# body-coordinate / text-fallback paths). The desktop app uses it; the DLL build
+# (invoice-engine-ffi) compiles with --no-default-features to ship as a pure
+# OFD→PNG converter — the extraction tree is then unreachable and LTO removes it.
+[features]
+default = ["fields"]
+fields = []
+
+[dependencies]
+zip = { version = "2", default-features = false, features = ["deflate"] }
+quick-xml = { version = "0.37", features = ["serialize"] }
+serde = { version = "1", features = ["derive"] }
+log = "0.4"
+base64 = "0.22"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "bmp"] }
+# Headless SVG → PNG rasterization. Needed by the DLL export path, where there
+# is no browser Canvas to draw the generated SVG into.
+resvg = "0.48"

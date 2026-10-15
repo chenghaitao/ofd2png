@@ -1,0 +1,81 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build (${{ matrix.arch }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x64, x86]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.arch == 'x64' && 'x86_64-pc-windows-msvc' || 'i686-pc-windows-msvc' }}
+
+      - name: Build DLL
+        shell: cmd
+        run: build_dll.bat ${{ matrix.arch }}
+
+      - name: Build CLI and demo
+        shell: cmd
+        run: build_dll.bat example ${{ matrix.arch }}
+
+      - name: Run unit tests (x64 only)
+        if: matrix.arch == 'x64'
+        shell: cmd
+        run: |
+          build_dll.bat test
+          build_dll.bat testengine
+
+      - name: Smoke test the CLI
+        shell: pwsh
+        run: |
+          python scripts/make-test-ofd.py
+          $out = "dist\dll\${{ matrix.arch }}\sample.png"
+          dist\dll\${{ matrix.arch }}\ofd2png.exe dist\sample.ofd $out
+          if (-not (Test-Path $out)) { throw "PNG was not produced" }
+
+      - name: Package deliverables
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\dll\${{ matrix.arch }}\* `
+            -DestinationPath ofd2png-${{ matrix.arch }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ofd2png-${{ matrix.arch }}
+          path: ofd2png-${{ matrix.arch }}.zip
+
+  release:
+    name: publish release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ofd2png-x64.zip
+            ofd2png-x86.zip
+          generate_release_notes: true

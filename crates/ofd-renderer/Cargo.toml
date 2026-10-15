@@ -1,0 +1,21 @@
+[package]
+name = "ofd-renderer"
+version = "0.1.0"
+edition = "2021"
+description = "C ABI / C++ facade for invoice-engine: rasterize OFD page 1 to PNG (no field extraction)"
+license = "MIT"
+publish = false
+
+# Output is ofd_renderer.dll (+ ofd_renderer.dll.lib import library on MSVC).
+# "rlib" is kept alongside "cdylib" so the crate can be unit-tested; a
+# "staticlib" is deliberately omitted — it would emit ofd_renderer.lib and
+# collide with the cdylib import library on Windows.
+[lib]
+name = "ofd_renderer"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# default-features = false drops the engine's "fields" feature: no structured
+# invoice field extraction is compiled in — this DLL is a pure OFD → PNG
+# converter. Release-profile size settings live in the workspace root.
+invoice-engine = { path = "../invoice-engine", default-features = false }

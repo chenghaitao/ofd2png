@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/invoice-engine",
+    "crates/ofd-renderer",
+]
+
+# Workspace-level release profile: these settings apply to every member.
+# Size over speed — page-1 rasterization stays well under a second even at
+# opt-level "z", and fat LTO removes the engine's field-extraction tree (the
+# ofd-renderer crate compiles the engine with default-features = false).
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+codegen-units = 1
