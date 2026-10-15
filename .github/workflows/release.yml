@@ -25,6 +25,13 @@ jobs:
         with:
           targets: ${{ matrix.arch == 'x64' && 'x86_64-pc-windows-msvc' || 'i686-pc-windows-msvc' }}
 
+      # Provision the MSVC environment (LIB/INCLUDE/PATH) without depending on
+      # a specific VS install path; build_dll.bat detects it and skips vcvars.
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+
       - name: Build DLL
         shell: cmd
         run: build_dll.bat ${{ matrix.arch }}

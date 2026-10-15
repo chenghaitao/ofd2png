@@ -192,6 +192,18 @@ if /I "%SDKARCH%"=="x64" (
 ) else (
   set "VCVARS=vcvars32.bat"
 )
+
+REM If the host already provisioned a complete MSVC environment (LIB carries
+REM the Windows SDK paths - e.g. the msvc-dev-cmd GitHub Action), vcvars is
+REM unnecessary and its VS-location probing can be skipped entirely.
+echo %LIB% | "%SystemRoot%\System32\find.exe" /i "Windows Kits" >nul
+if not errorlevel 1 exit /b 0
+
+if not defined VS (
+  echo [ERROR] No Visual Studio installation found ^(set VS or run the^^
+ msvc-dev-cmd action before this script^).
+  exit /b 1
+)
 if not exist "%VS%\VC\Auxiliary\Build\%VCVARS%" (
   echo [ERROR] MSVC toolchain not found at "%VS%\VC\Auxiliary\Build\%VCVARS%"
   echo         Edit the VS variable at the top of this script.
