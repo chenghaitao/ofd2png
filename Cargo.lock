@@ -283,7 +283,7 @@ dependencies = [
 
 [[package]]
 name = "invoice-engine"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "base64 0.22.1",
  "image",
@@ -374,7 +374,7 @@ dependencies = [
 
 [[package]]
 name = "ofd-renderer"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "invoice-engine",
 ]

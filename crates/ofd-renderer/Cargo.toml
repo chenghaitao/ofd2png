@@ -1,6 +1,6 @@
 [package]
 name = "ofd-renderer"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "C ABI / C++ facade for invoice-engine: rasterize OFD page 1 to PNG (no field extraction)"
 license = "MIT"
